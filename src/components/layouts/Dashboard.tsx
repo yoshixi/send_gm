@@ -18,13 +18,7 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import Chart from "@/components/examples/Chart";
-import Deposits from "@/components/examples/Deposits";
-import Orders from "@/components/examples/Orders";
-import {
-  mainListItems,
-  secondaryListItems,
-} from "@/components/examples/ListItems";
+import { mainListItems } from "./ListItems";
 
 function Copyright(props: any) {
   return (
@@ -159,8 +153,6 @@ export default function DashboardContent(props: Props) {
           </Toolbar>
           <Divider />
           <List>{mainListItems}</List>
-          <Divider />
-          <List>{secondaryListItems}</List>
         </Drawer>
         <Box
           component="main"
