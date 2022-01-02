@@ -167,7 +167,11 @@ export default function DashboardContent(props: Props) {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container
+            maxWidth="lg"
+            sx={{ mt: 4, mb: 4 }}
+            className="min-h-[80%]"
+          >
             {props.children}
           </Container>
         </Box>
