@@ -19,6 +19,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems } from "./ListItems";
+import { blueGrey, indigo } from "@mui/material/colors";
 
 function Copyright(props: any) {
   return (
@@ -39,6 +40,7 @@ function Copyright(props: any) {
 }
 
 const drawerWidth: number = 240;
+const headerHeight = "64px";
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -52,9 +54,10 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  background: indigo[900],
   ...(open && {
     marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    width: `100%`,
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -124,12 +127,12 @@ export default function DashboardContent(props: Props) {
             </IconButton>
             <Typography
               component="h1"
-              variant="h6"
+              variant="h4"
               color="inherit"
               noWrap
-              sx={{ flexGrow: 1 }}
+              sx={{ flexGrow: 1, fontWeight: "bold" }}
             >
-              Dashboard
+              SendGM
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -139,6 +142,9 @@ export default function DashboardContent(props: Props) {
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
+          <Box height={headerHeight}></Box>
+          <List>{mainListItems}</List>
+          <Divider />
           <Toolbar
             sx={{
               display: "flex",
@@ -151,16 +157,12 @@ export default function DashboardContent(props: Props) {
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
-          <Divider />
-          <List>{mainListItems}</List>
         </Drawer>
         <Box
           component="main"
           sx={{
             backgroundColor: (theme) =>
-              theme.palette.mode === "light"
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
+              theme.palette.mode === "light" ? blueGrey[50] : blueGrey[900],
             flexGrow: 1,
             height: "100vh",
             overflow: "auto",
