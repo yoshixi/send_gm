@@ -14,7 +14,7 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { Avatar, List, Toolbar } from "@mui/material";
+import { Avatar, List, Toolbar, Tooltip, Menu, MenuItem } from "@mui/material";
 import { mainListItems } from "./ListItems";
 import { blueGrey, indigo } from "@mui/material/colors";
 import { User } from "@/hooks/authentication";
@@ -96,10 +96,23 @@ interface Props {
   currentUser: User;
 }
 
+const settings = ["Profile", "Account", "Dashboard", "Logout"];
+
 export default function DashboardContent(props: Props) {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
+    null
+  );
+
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
   };
   const { currentUser } = props;
 
@@ -139,9 +152,36 @@ export default function DashboardContent(props: Props) {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton color="inherit">
-              <Avatar src={currentUser?.photoURL}></Avatar>
-            </IconButton>
+
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} color="inherit">
+                  <Avatar src={currentUser?.photoURL}></Avatar>
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting) => (
+                  <MenuItem key={setting}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>

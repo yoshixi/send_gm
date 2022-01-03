@@ -45,7 +45,8 @@ const top100Films = [
 
 export default function Index() {
   const [age, setAge] = useState("");
-  const { user, isLoggedIn } = useAuthentication();
+  const { user, userGoogleCred } = useAuthentication();
+  console.log(userGoogleCred);
 
   const handleChange = (event) => {
     setAge(event.target.value);

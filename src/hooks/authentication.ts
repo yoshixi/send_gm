@@ -41,7 +41,6 @@ export function useAuthentication() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, function (firebaseUser) {
       if (firebaseUser) {
-        console.log("Set user");
         setUser({
           uid: firebaseUser.uid,
           providerId: firebaseUser.providerId,
@@ -90,10 +89,10 @@ export function useAuthentication() {
   return { user, userGoogleCred };
 }
 
-// ここでTwitterログイン
 export const Login = () => {
   console.log("Login..");
   const provider = new GoogleAuthProvider();
+  provider.addScope("https://www.googleapis.com/auth/gmail.send");
   signInWithRedirect(auth, provider)
     .then(function (result: any) {
       console.log("Logged in successfully");
