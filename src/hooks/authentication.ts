@@ -1,6 +1,5 @@
 import firebase from "firebase/app";
 import {
-  getAuth,
   onAuthStateChanged,
   getRedirectResult,
   signInWithRedirect,
@@ -9,6 +8,7 @@ import {
 import { auth } from "../lib/firebase";
 import { useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
+import { useRouter } from "next/router";
 export interface User {
   uid: string;
   providerId: string;
@@ -16,20 +16,29 @@ export interface User {
   photoURL: string;
 }
 
+export interface UserGoogleCred {
+  token: string;
+  secret: string;
+}
+
 const userState = atom<User>({
   key: "user",
+  default: null,
+});
+
+const userGoogleCredState = atom<UserGoogleCred>({
+  key: "userGoogleCred",
   default: null,
 });
 
 // 最新のfirebaseUserをステートとして返す関数
 export function useAuthentication() {
   const [user, setUser] = useRecoilState(userState);
-
-  console.log("Start useEffect");
+  const [userGoogleCred, setUserGoogleCred] =
+    useRecoilState(userGoogleCredState);
+  const router = useRouter();
 
   useEffect(() => {
-    // firebase auth state の購読
-    // () => Login() でTwitterログインしたらRecoilStateをsetするための処理
     const unsub = onAuthStateChanged(auth, function (firebaseUser) {
       if (firebaseUser) {
         console.log("Set user");
@@ -39,9 +48,11 @@ export function useAuthentication() {
           displayName: firebaseUser.displayName || "",
           photoURL: firebaseUser.photoURL || "",
         });
+        router.replace("/dashboard");
       } else {
         // User is signed out.
         setUser(null);
+        router.replace("/");
       }
     });
 
@@ -53,15 +64,13 @@ export function useAuthentication() {
         if (result) {
           /** @type {firebase.auth.OAuthCredential} */
           const credential = GoogleAuthProvider.credentialFromResult(result);
-          const token = credential?.accessToken;
-          const secret = credential?.secret;
+          const token = credential?.accessToken || "";
+          const secret = credential?.secret || "";
+          setUserGoogleCred({ token, secret });
 
           // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
           // You can use these server side with your app's credentials to access the Twitter API.
         }
-
-        // The signed-in user info.
-        user = result.user;
       })
       .catch((error) => {
         // Handle Errors here.
@@ -78,7 +87,7 @@ export function useAuthentication() {
     return () => unsub();
   }, []); // useEffectを1回だけ呼ぶために第2引数に[]を渡す
 
-  return { user };
+  return { user, userGoogleCred };
 }
 
 // ここでTwitterログイン

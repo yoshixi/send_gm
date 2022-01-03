@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { RecoilRoot } from "recoil";
+import { useAuthentication } from "@/hooks/authentication";
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;

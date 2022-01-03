@@ -5,8 +5,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import MuiDrawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
@@ -16,8 +14,10 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import { Avatar, List, Toolbar } from "@mui/material";
 import { mainListItems } from "./ListItems";
 import { blueGrey, indigo } from "@mui/material/colors";
+import { User } from "@/hooks/authentication";
 
 function Copyright(props: any) {
   return (
@@ -93,6 +93,7 @@ const mdTheme = createTheme();
 
 interface Props {
   children: ReactChild | ReactChild[] | ReactChildren | ReactChildren[];
+  currentUser: User;
 }
 
 export default function DashboardContent(props: Props) {
@@ -100,6 +101,7 @@ export default function DashboardContent(props: Props) {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const { currentUser } = props;
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -136,6 +138,9 @@ export default function DashboardContent(props: Props) {
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
+            </IconButton>
+            <IconButton color="inherit">
+              <Avatar src={currentUser?.photoURL}></Avatar>
             </IconButton>
           </Toolbar>
         </AppBar>
