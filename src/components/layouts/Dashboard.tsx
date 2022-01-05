@@ -17,7 +17,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { Avatar, List, Toolbar, Tooltip, Menu, MenuItem } from "@mui/material";
 import { mainListItems } from "./ListItems";
 import { blueGrey, indigo } from "@mui/material/colors";
-import { User } from "@/hooks/authentication";
+import { User, Logout } from "@/hooks/authentication";
 
 function Copyright(props: any) {
   return (
@@ -93,7 +93,7 @@ const mdTheme = createTheme();
 
 interface Props {
   children: ReactChild | ReactChild[] | ReactChildren | ReactChildren[];
-  currentUser: User;
+  currentUser: User | null;
 }
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -175,11 +175,9 @@ export default function DashboardContent(props: Props) {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
-                  <MenuItem key={setting}>
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
+                <MenuItem onClick={Logout}>
+                  <Typography textAlign="center">Logout</Typography>
+                </MenuItem>
               </Menu>
             </Box>
           </Toolbar>

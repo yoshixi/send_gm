@@ -9,6 +9,13 @@ import { auth } from "../lib/firebase";
 import { useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
 import { useRouter } from "next/router";
+
+export const OAUTH_CONFIG = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  clientId: process.env.NEXT_PUBLIC_OAUTH2_GOOGLE_CLIENT_ID,
+  scopes: ["https://www.googleapis.com/auth/gmail.send"],
+};
+
 export interface User {
   uid: string;
   providerId: string;
@@ -21,12 +28,12 @@ export interface UserGoogleCred {
   secret: string;
 }
 
-const userState = atom<User>({
+const userState = atom<User | null>({
   key: "user",
   default: null,
 });
 
-const userGoogleCredState = atom<UserGoogleCred>({
+const userGoogleCredState = atom<UserGoogleCred | null>({
   key: "userGoogleCred",
   default: null,
 });
@@ -92,7 +99,9 @@ export function useAuthentication() {
 export const Login = () => {
   console.log("Login..");
   const provider = new GoogleAuthProvider();
-  provider.addScope("https://www.googleapis.com/auth/gmail.send");
+  OAUTH_CONFIG.scopes.forEach((scope) => {
+    provider.addScope(scope);
+  });
   signInWithRedirect(auth, provider)
     .then(function (result: any) {
       console.log("Logged in successfully");

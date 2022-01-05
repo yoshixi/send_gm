@@ -13,6 +13,7 @@ import Dashboard from "@/components/layouts/Dashboard";
 import Title from "@/components/ui/Title";
 import AddIcon from "@mui/icons-material/Add";
 import { useAuthentication } from "@/hooks/authentication";
+import { useGmail } from "@/hooks/gmail";
 
 const rows = Array(100)
   .fill(null)
@@ -48,8 +49,14 @@ export default function Index() {
   const { user, userGoogleCred } = useAuthentication();
   console.log(userGoogleCred);
 
+  const { sendGmail } = useGmail();
+
   const handleChange = (event) => {
     setAge(event.target.value);
+  };
+
+  const handleSendMailClick = async () => {
+    await sendGmail();
   };
   return (
     <Dashboard currentUser={user}>
@@ -100,8 +107,12 @@ export default function Index() {
           <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
             <Box className="flex justify-between mb-4">
               <Title>送信先</Title>
-              <Button color="primary" startIcon={<AddIcon />}>
-                Add record
+              <Button
+                onClick={handleSendMailClick}
+                color="primary"
+                startIcon={<AddIcon />}
+              >
+                SentEmail
               </Button>
             </Box>
             <div style={{ height: 520, width: "100%" }}>
