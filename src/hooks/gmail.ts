@@ -2,6 +2,14 @@ import { useEffect, useState, Dispatch } from "react";
 import { getAuth, GoogleAuthProvider, User } from "firebase/auth";
 import { OAUTH_CONFIG, Login } from "./authentication";
 
+type SendMailParams = {
+  to: string;
+  from: string;
+  bcc?: string;
+  subject: string;
+  message: string;
+};
+
 export const initializeGapi = () => {
   //loads the Google JavaScript Library
   const id = "google-js-api";
@@ -41,6 +49,27 @@ export const initializeGapi = () => {
   document.getElementsByTagName("head")[0].appendChild(script);
 };
 
+const makeBody = (params: SendMailParams) => {
+  params.subject = Buffer.from(params.subject).toString("base64");
+  const headers = [
+    `Content-Type: text/plain; charset=\"UTF-8\"\n`,
+    `MIME-Version: 1.0\n`,
+    `Content-Transfer-Encoding: 7bit\n`,
+    `to: ${params.to} \n`,
+    `from: ${params.from} \n`,
+    `subject: =?UTF-8?B?${params.subject}?= \n\n`,
+  ];
+  if (params.bcc) {
+    headers.push(`bcc: ${params.bcc} \n`);
+  }
+
+  const str = [...headers, params.message].join("");
+  return Buffer.from(str)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+};
+
 export const useGmail = () => {
   useEffect(() => {
     initializeGapi();
@@ -49,34 +78,11 @@ export const useGmail = () => {
   return { sendGmail };
 };
 
-export const sendGmail = () => {
+export const sendGmail = (params: SendMailParams) => {
   if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
     Login();
     return;
   }
-
-  const makeBody = (params: {
-    to: string;
-    from: string;
-    subject: string;
-    message: string;
-  }) => {
-    params.subject = Buffer.from(params.subject).toString("base64");
-
-    const str = [
-      `Content-Type: text/plain; charset=\"UTF-8\"\n`,
-      `MIME-Version: 1.0\n`,
-      `Content-Transfer-Encoding: 7bit\n`,
-      `to: ${params.to} \n`,
-      `from: ${params.from} \n`,
-      `subject: =?UTF-8?B?${params.subject}?= \n\n`,
-      params.message,
-    ].join("");
-    return Buffer.from(str)
-      .toString("base64")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
-  };
 
   const messageBody = `
         XXXX 様
@@ -91,9 +97,9 @@ export const sendGmail = () => {
         https://trackings.post.japanpost.jp/xxxxxxxxxx`;
 
   const raw = makeBody({
-    to: "yoshixj4@gmail.com",
-    from: "yoshiwebxj@gmail.com",
-    subject: "件名(日本語可)",
+    to: params.to,
+    from: params.from,
+    subject: params.subject,
     message: messageBody,
   });
 
