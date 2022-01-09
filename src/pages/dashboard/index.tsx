@@ -7,6 +7,7 @@ import {
   Paper,
   TextField,
   Autocomplete,
+  Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Dashboard from "@/components/layouts/Dashboard";
@@ -97,20 +98,21 @@ export default function Index() {
 
   return (
     <Dashboard currentUser={currentUser}>
-      <Grid container spacing={2} className="min-h-80 h-5/6">
+      <Grid container spacing={2} sx={{ minHeight: "80%", height: "80%" }}>
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <Box className="flex justify-between mb-4">
+            <Box
+              sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}
+            >
               <Title>送信内容</Title>
             </Box>
-            <Box className="mb-4">
-              <p className="font-bold mb-4">ヘッダ情報</p>
+            <Box sx={{ mb: 2 }}>
               <TextField
                 label="差出人メールアドレス"
                 id="outlined-size-small"
                 defaultValue="sender@gmail.com"
                 size="small"
-                className="mr-4 w-1/6"
+                sx={{ mr: 1, width: "16%" }}
                 onChange={handleSenderEmailChange}
               />
               <TextField
@@ -118,13 +120,13 @@ export default function Index() {
                 id="outlined-size-small"
                 defaultValue="sender@gmail.com"
                 size="small"
-                className="mr-4 w-1/6"
+                sx={{ mr: 1, width: "16%" }}
                 onChange={handleSubjectChange}
               />
               <Autocomplete
                 id="size-small-outlined"
                 size="small"
-                className="mr-4 w-1/6"
+                sx={{ mr: 1, width: "16%" }}
                 options={top100Films}
                 getOptionLabel={(option) => option.title}
                 defaultValue={top100Films[1]}
@@ -139,18 +141,20 @@ export default function Index() {
               />
             </Box>
             <Box>
-              <p className="font-bold mb-4">置き換え文字列</p>
+              <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                置き換え文字列
+              </Typography>
               <TextField
                 id="outlined-textarea"
                 label="変数1 ($arg1 を置き換える文字列) "
                 placeholder="Placeholder"
-                className="mr-4 w-1/3"
+                sx={{ mr: 2, width: "30%" }}
                 multiline
               />
               <TextField
                 id="outlined-textarea"
                 label="変数2 ($arg2 を置き換える文字列)"
-                className="mr-4 w-1/3"
+                sx={{ mr: 2, width: "30%" }}
                 multiline
               />
             </Box>
@@ -158,7 +162,9 @@ export default function Index() {
         </Grid>
         <Grid item xs={12}>
           <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-            <Box className="flex justify-between mb-4">
+            <Box
+              sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}
+            >
               <Title>送信先</Title>
               <Button
                 onClick={handleSendMailClick}
@@ -168,9 +174,9 @@ export default function Index() {
                 SentEmail
               </Button>
             </Box>
-            <div style={{ height: 520, width: "100%" }}>
+            <Box sx={{ height: 520, width: "100%" }}>
               <DataGrid rows={rows} columns={columns} hideFooter />
-            </div>
+            </Box>
           </Paper>
         </Grid>
       </Grid>

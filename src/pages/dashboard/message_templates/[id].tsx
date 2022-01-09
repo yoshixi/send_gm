@@ -11,6 +11,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
+import { grey } from "@mui/material/colors";
 
 const Id = () => {
   const router = useRouter();
@@ -28,28 +29,28 @@ const Id = () => {
     <Index>
       <>
         <Dialog open={open} onClose={handleClose} fullWidth>
-          <DialogTitle>Subscribe</DialogTitle>
+          <DialogTitle sx={{ fontWeight: "bold" }}>
+            テンプレート作成
+          </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth className="mb-6">
+            <FormControl fullWidth sx={{ mb: 2 }}>
               <TextField
                 id="outlined-multiline-static"
                 label="件名"
                 multiline
                 rows={1}
                 defaultValue=""
-                className="mb-6"
+                sx={{ mb: 2 }}
               />
               <TextField
                 id="outlined-multiline-static"
                 label="本文"
                 multiline
-                rows={10}
+                rows={20}
                 defaultValue=""
               />
             </FormControl>
-            <DialogContentText className="mb-6">
-              {description}
-            </DialogContentText>
+            <DialogContentText sx={{ mb: 2 }}>{description}</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>キャンセル</Button>

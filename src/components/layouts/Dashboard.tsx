@@ -63,7 +63,9 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  background: indigo[900],
+  backgroundColor: "rgb(3,97,250)",
+  background:
+    "linear-gradient(90deg, rgba(3,97,250,1) 0%, rgba(7,147,255,1) 50%, rgba(3,97,250,1) 100%)",
   ...(open && {
     marginLeft: drawerWidth,
     width: `100%`,
@@ -244,11 +246,7 @@ export default function DashboardContent(props: Props) {
           }}
         >
           <Toolbar />
-          <Container
-            maxWidth="lg"
-            sx={{ mt: 4, mb: 4 }}
-            className="min-h-[80%]"
-          >
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4, minHeight: "80%" }}>
             {props.children}
           </Container>
         </Box>

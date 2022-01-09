@@ -1,18 +1,15 @@
-import { useState, useEffect } from "react";
-import { NextPage } from "next";
 import { useRouter } from "next/router";
 import {
   Grid,
   Box,
   Paper,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  Button,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { tableCellClasses } from "@mui/material/TableCell";
+import AddIcon from "@mui/icons-material/Add";
 import Dashboard from "@/components/layouts/Dashboard";
 import Title from "@/components/ui/Title";
 import { useAuthentication } from "@/hooks/authentication";
@@ -32,11 +29,21 @@ const Index = (props: Props) => {
   return (
     <Dashboard currentUser={currentUser}>
       <>
-        <Grid container spacing={2} className="min-h-80 h-5/6">
+        <Grid container spacing={2}>
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
-              <Box className="flex justify-between mb-4">
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Title>送信内容</Title>
+                <Button
+                  variant="contained"
+                  disableElevation
+                  onClick={() =>
+                    router.push("/dashboard/message_templates/new")
+                  }
+                >
+                  <AddIcon sx={{ mr: 1 }} />
+                  新規追加
+                </Button>
               </Box>
               <Box>
                 <List>
