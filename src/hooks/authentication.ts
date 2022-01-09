@@ -63,7 +63,6 @@ export function useAuthentication() {
           photoURL: firebaseUser.photoURL || "",
           email: firebaseUser.email || "",
         });
-        router.replace("/dashboard");
       } else {
         // User is signed out.
         setCurrentUser(null);
@@ -78,6 +77,7 @@ export function useAuthentication() {
   return { currentUser, userGoogleCred };
 }
 
+// make component like LoginButton to use hooks function
 export const Login = () => {
   console.log("Login..");
   const provider = new GoogleAuthProvider();

@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { ReactChild, ReactChildren } from "react";
+import { useRouter } from "next/router";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import MuiDrawer from "@mui/material/Drawer";
@@ -14,10 +15,20 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { Avatar, List, Toolbar, Tooltip, Menu, MenuItem } from "@mui/material";
-import { mainListItems } from "./ListItems";
+import {
+  Avatar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Tooltip,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { blueGrey, indigo } from "@mui/material/colors";
 import { User, Logout } from "@/hooks/authentication";
+import { EmailOutlined, Article, History } from "@mui/icons-material";
 
 function Copyright(props: any) {
   return (
@@ -99,6 +110,7 @@ interface Props {
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 export default function DashboardContent(props: Props) {
+  const router = useRouter();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -184,7 +196,29 @@ export default function DashboardContent(props: Props) {
         </AppBar>
         <Drawer variant="permanent" open={open}>
           <Box height={headerHeight}></Box>
-          <List>{mainListItems}</List>
+          <List>
+            <ListItem button onClick={() => router.push("/dashboard")}>
+              <ListItemIcon>
+                <EmailOutlined />
+              </ListItemIcon>
+              <ListItemText primary="メール送信" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => router.push("/dashboard/message_templates")}
+            >
+              <ListItemIcon>
+                <Article />
+              </ListItemIcon>
+              <ListItemText primary="テンプレート" />
+            </ListItem>
+            <ListItem button>
+              <ListItemIcon>
+                <History />
+              </ListItemIcon>
+              <ListItemText primary="送信履歴" />
+            </ListItem>
+          </List>
           <Divider />
           <Toolbar
             sx={{
