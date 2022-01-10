@@ -6,11 +6,11 @@ import {
   getDoc,
   query,
   doc,
+  setDoc,
 } from "firebase/firestore";
 import { MessageTemplate, User } from "@/models";
 import { useEffect, useState } from "react";
 import { useAuthentication } from "@/hooks/authentication";
-
 const db = getFirestore();
 
 export const createTemplate = async (
@@ -19,6 +19,17 @@ export const createTemplate = async (
 ) => {
   return await addDoc(
     collection(db, "users", userId, "message_templates"),
+    messageTemplate
+  );
+};
+
+export const setTemplate = async (
+  userId: string,
+  messageTemplateId: string,
+  messageTemplate: MessageTemplate
+) => {
+  return await setDoc(
+    doc(db, "users", userId, "message_templates", messageTemplateId),
     messageTemplate
   );
 };
@@ -87,7 +98,15 @@ export const useMessageTemplate = (messageTemplateId: string) => {
     fetchData();
   }, [currentUser, messageTemplateId]);
 
+  const updateTemplate = (template: MessageTemplate) => {
+    if (!currentUser?.uid) return Promise.resolve(alert("not login"));
+
+    return setTemplate(currentUser?.uid, messageTemplateId, template);
+  };
+
   return {
     messageTemplate,
+    setMessageTemplate,
+    updateTemplate,
   };
 };

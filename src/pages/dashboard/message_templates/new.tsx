@@ -46,7 +46,7 @@ const Id = () => {
     }
 
     await createTemplate(currentUser?.uid, messageTemplate);
-    alert("");
+    router.push("/dashboard/message_templates");
   };
 
   const { id } = router.query;

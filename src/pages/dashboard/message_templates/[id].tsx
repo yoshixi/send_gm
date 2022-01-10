@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { ChangeEvent } from "react";
 import Index from "./index";
 import {
   Dialog,
@@ -11,17 +11,36 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { grey } from "@mui/material/colors";
 import { useMessageTemplate } from "@/hooks/messageTemplate";
+import { useAuthentication } from "@/hooks/authentication";
+import { MessageTemplate } from "@/models";
 
 const Id = () => {
   const router = useRouter();
   const id = router.query.id as string;
   const open = true;
 
-  const { messageTemplate } = useMessageTemplate(id);
+  const { messageTemplate, setMessageTemplate, updateTemplate } =
+    useMessageTemplate(id);
+  const { currentUser } = useAuthentication();
+
+  const handleMessageTemplateChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    setMessageTemplate({
+      ...messageTemplate,
+      [event.target.name]: event.target.value,
+    } as MessageTemplate);
+  };
 
   const handleClose = () => {
+    router.push("/dashboard/message_templates");
+  };
+
+  const handleOnSaveClick = async () => {
+    if (!messageTemplate) return;
+
+    await updateTemplate(messageTemplate);
     router.push("/dashboard/message_templates");
   };
 
@@ -31,34 +50,35 @@ const Id = () => {
   return (
     <Index>
       <>
-        <Dialog open={open} onClose={handleClose} fullWidth>
+        <Dialog open={open} onClose={handleClose} fullWidth sx={{ p: 2 }}>
           <DialogTitle sx={{ fontWeight: "bold" }}>
-            テンプレート作成
+            テンプレート編集
           </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth sx={{ mb: 2 }}>
+            <FormControl fullWidth sx={{ mb: 2, pt: 2 }}>
               <TextField
-                id="outlined-multiline-static"
                 label="件名"
                 multiline
                 rows={1}
+                name="subject"
                 value={messageTemplate?.subject}
                 sx={{ mb: 2 }}
+                onChange={handleMessageTemplateChange}
               />
               <TextField
-                id="outlined-multiline-static"
                 label="本文"
+                name="message"
                 multiline
                 value={messageTemplate?.message}
                 rows={20}
-                defaultValue=""
+                onChange={handleMessageTemplateChange}
               />
             </FormControl>
             <DialogContentText sx={{ mb: 2 }}>{description}</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>キャンセル</Button>
-            <Button onClick={handleClose}>保存</Button>
+            <Button onClick={handleOnSaveClick}>保存</Button>
           </DialogActions>
         </Dialog>
       </>
