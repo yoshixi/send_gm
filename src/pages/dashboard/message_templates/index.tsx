@@ -54,7 +54,7 @@ const Index = (props: Props) => {
                       <ListItemButton
                         key={row.id}
                         onClick={() =>
-                          router.push(`/dashboard/message_templates/2`)
+                          router.push(`/dashboard/message_templates/${row.id}`)
                         }
                       >
                         <ListItemIcon>

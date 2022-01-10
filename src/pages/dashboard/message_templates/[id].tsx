@@ -12,16 +12,19 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
+import { useMessageTemplate } from "@/hooks/messageTemplate";
 
 const Id = () => {
   const router = useRouter();
+  const id = router.query.id as string;
   const open = true;
+
+  const { messageTemplate } = useMessageTemplate(id);
 
   const handleClose = () => {
     router.push("/dashboard/message_templates");
   };
 
-  const { id } = router.query;
   const description =
     "$arg1 $arg2 と記述すると、内容を送信時に内容を置き換えることができます。";
 
@@ -39,13 +42,14 @@ const Id = () => {
                 label="件名"
                 multiline
                 rows={1}
-                defaultValue=""
+                value={messageTemplate?.subject}
                 sx={{ mb: 2 }}
               />
               <TextField
                 id="outlined-multiline-static"
                 label="本文"
                 multiline
+                value={messageTemplate?.message}
                 rows={20}
                 defaultValue=""
               />
