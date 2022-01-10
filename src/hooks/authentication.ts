@@ -7,25 +7,13 @@ import { auth } from "../lib/firebase";
 import { useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
 import { useRouter } from "next/router";
+import { User, UserGoogleCred } from "@/models/user";
 
 export const OAUTH_CONFIG = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   clientId: process.env.NEXT_PUBLIC_OAUTH2_GOOGLE_CLIENT_ID,
   scopes: ["https://www.googleapis.com/auth/gmail.send"],
 };
-
-export interface User {
-  uid: string;
-  providerId: string;
-  displayName: string;
-  photoURL: string;
-  email: string;
-}
-
-export interface UserGoogleCred {
-  token: string;
-  secret: string;
-}
 
 const userState = atom<User | null>({
   key: "user",

@@ -6,7 +6,7 @@ import { useAuthentication, Login, Logout } from "@/hooks/authentication";
 import { Button } from "@mui/material";
 
 const Home: NextPage = () => {
-  const { user } = useAuthentication();
+  const { currentUser } = useAuthentication();
   return (
     <div className={styles.container}>
       <Head>
@@ -24,8 +24,8 @@ const Home: NextPage = () => {
           Get started by editing{" "}
           <code className={styles.code}>pages/index.tsx</code>
         </p>
-        <p>current user{user?.displayName}</p>
-        <img src={user?.photoURL} alt="" />
+        <p>current user{currentUser?.displayName}</p>
+        <Image src={currentUser?.photoURL} alt="" />
 
         <Button
           onClick={() => {

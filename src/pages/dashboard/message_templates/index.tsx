@@ -13,6 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Dashboard from "@/components/layouts/Dashboard";
 import Title from "@/components/ui/Title";
 import { useAuthentication } from "@/hooks/authentication";
+import { useMessageTemplates } from "@/hooks/messageTemplate";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import type { ReactChild, ReactChildren } from "react";
 
@@ -23,6 +24,7 @@ interface Props {
 const Index = (props: Props) => {
   const router = useRouter();
   const { currentUser, userGoogleCred } = useAuthentication();
+  const { messageTemplates } = useMessageTemplates();
 
   const templateNames = [{ name: "template1" }, { name: "template2" }];
 
@@ -47,10 +49,10 @@ const Index = (props: Props) => {
               </Box>
               <Box>
                 <List>
-                  {templateNames.map((row) => {
+                  {messageTemplates.map((row, index) => {
                     return (
                       <ListItemButton
-                        key={row.name}
+                        key={row.id}
                         onClick={() =>
                           router.push(`/dashboard/message_templates/2`)
                         }
@@ -59,8 +61,8 @@ const Index = (props: Props) => {
                           <InsertDriveFileIcon />
                         </ListItemIcon>
                         <ListItemText
-                          primary="Single-line item"
-                          secondary={"Secondary text"}
+                          primary={row.subject}
+                          secondary={row.message}
                         />
                       </ListItemButton>
                     );
