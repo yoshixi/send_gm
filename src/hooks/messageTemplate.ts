@@ -67,11 +67,15 @@ export const useMessageTemplates = () => {
   const [messageTemplates, setMessageTemplates] = useState<
     Array<MessageTemplate>
   >([]);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<MessageTemplate | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       if (currentUser?.uid) {
         const result = await getTemplates(currentUser.uid);
         setMessageTemplates(result);
+        setSelectedTemplate(result[0]);
       }
     };
 
@@ -80,6 +84,8 @@ export const useMessageTemplates = () => {
 
   return {
     messageTemplates,
+    selectedTemplate,
+    setSelectedTemplate,
   };
 };
 

@@ -199,7 +199,11 @@ export default function DashboardContent(props: Props) {
         <Drawer variant="permanent" open={open}>
           <Box height={headerHeight}></Box>
           <List>
-            <ListItem button onClick={() => router.push("/dashboard")}>
+            <ListItem
+              sx={{ fontWeight: "bold" }}
+              button
+              onClick={() => router.push("/dashboard")}
+            >
               <ListItemIcon>
                 <EmailOutlined />
               </ListItemIcon>

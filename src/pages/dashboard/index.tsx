@@ -15,6 +15,10 @@ import Title from "@/components/ui/Title";
 import AddIcon from "@mui/icons-material/Add";
 import { useAuthentication } from "@/hooks/authentication";
 import { useGmail } from "@/hooks/gmail";
+import { useMessageTemplates } from "@/hooks/messageTemplate";
+import { MessageTemplate } from "@/models";
+import CheckIcon from "@mui/icons-material/Check";
+import SendIcon from "@mui/icons-material/Send";
 
 // const rows = Array(100)
 //   .fill(null)
@@ -64,8 +68,6 @@ const top100Films = [
 ];
 
 export default function Index() {
-  const [age, setAge] = useState("");
-
   const [senderEmail, setSenderEmail] = useState("");
   const handleSenderEmailChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -78,9 +80,21 @@ export default function Index() {
     setSubject(event.target.value);
   };
 
-  const { currentUser, userGoogleCred } = useAuthentication();
+  const { currentUser } = useAuthentication();
+  useEffect(() => {
+    if (!currentUser?.email) return;
+
+    setSenderEmail(currentUser?.email);
+  }, [currentUser]);
 
   const { sendGmail } = useGmail();
+  const { messageTemplates, selectedTemplate, setSelectedTemplate } =
+    useMessageTemplates();
+  useEffect(() => {
+    if (!selectedTemplate?.subject) return;
+
+    setSubject(selectedTemplate?.subject);
+  }, [selectedTemplate]);
 
   const handleSendMailClick = () => {
     const sendGmails = rows.map((row) => {
@@ -107,40 +121,41 @@ export default function Index() {
               <Title>送信内容</Title>
             </Box>
             <Box sx={{ mb: 2 }}>
+              <Autocomplete
+                id="size-small-outlined"
+                size="medium"
+                sx={{ mr: 1, width: "30%" }}
+                options={messageTemplates}
+                getOptionLabel={(option) => option.subject}
+                value={selectedTemplate}
+                style={{ display: "inline-block" }}
+                onChange={(event: any, newValue: MessageTemplate | null) => {
+                  setSelectedTemplate(newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="テンプレート" />
+                )}
+              />
               <TextField
                 label="差出人メールアドレス"
                 id="outlined-size-small"
                 defaultValue="sender@gmail.com"
-                size="small"
-                sx={{ mr: 1, width: "16%" }}
+                size="medium"
+                sx={{ mr: 1, width: "30%" }}
+                value={senderEmail}
                 onChange={handleSenderEmailChange}
               />
               <TextField
                 label="件名"
                 id="outlined-size-small"
                 defaultValue="sender@gmail.com"
-                size="small"
-                sx={{ mr: 1, width: "16%" }}
+                value={subject}
+                size="medium"
+                sx={{ mr: 1, width: "30%" }}
                 onChange={handleSubjectChange}
               />
-              <Autocomplete
-                id="size-small-outlined"
-                size="small"
-                sx={{ mr: 1, width: "16%" }}
-                options={top100Films}
-                getOptionLabel={(option) => option.title}
-                defaultValue={top100Films[1]}
-                style={{ display: "inline-block" }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="テンプレート"
-                    placeholder="Favorites"
-                  />
-                )}
-              />
             </Box>
-            <Box>
+            <Box sx={{ mb: 2 }}>
               <Typography sx={{ fontWeight: "bold", mb: 1 }}>
                 置き換え文字列
               </Typography>
@@ -158,6 +173,17 @@ export default function Index() {
                 multiline
               />
             </Box>
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                disableElevation
+                startIcon={<CheckIcon />}
+                size="small"
+                sx={{ fontWeight: "bold" }}
+              >
+                送信内容を確認
+              </Button>
+            </Box>
           </Paper>
         </Grid>
         <Grid item xs={12}>
@@ -166,15 +192,32 @@ export default function Index() {
               sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}
             >
               <Title>送信先</Title>
-              <Button
-                onClick={handleSendMailClick}
-                color="primary"
-                startIcon={<AddIcon />}
-              >
-                SentEmail
-              </Button>
+              <Box>
+                <Button
+                  onClick={handleSendMailClick}
+                  color="primary"
+                  size="small"
+                  variant="contained"
+                  disableElevation
+                  startIcon={<AddIcon />}
+                  sx={{ fontWeight: "bold", mr: 1 }}
+                >
+                  送信先を追加
+                </Button>
+                <Button
+                  onClick={handleSendMailClick}
+                  color="primary"
+                  size="small"
+                  variant="contained"
+                  disableElevation
+                  startIcon={<SendIcon />}
+                  sx={{ fontWeight: "bold" }}
+                >
+                  送信
+                </Button>
+              </Box>
             </Box>
-            <Box sx={{ height: 520, width: "100%" }}>
+            <Box sx={{ height: 420, width: "100%" }}>
               <DataGrid rows={rows} columns={columns} hideFooter />
             </Box>
           </Paper>

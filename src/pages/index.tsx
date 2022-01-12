@@ -25,7 +25,11 @@ const Home: NextPage = () => {
           <code className={styles.code}>pages/index.tsx</code>
         </p>
         <p>current user{currentUser?.displayName}</p>
-        <Image src={currentUser?.photoURL} alt="" />
+
+        <img
+          src={currentUser?.photoURL || "/blank-profile-picture.png"}
+          alt=""
+        />
 
         <Button
           onClick={() => {
