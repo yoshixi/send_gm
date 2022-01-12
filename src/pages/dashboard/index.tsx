@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import {
   Grid,
@@ -8,6 +8,10 @@ import {
   TextField,
   Autocomplete,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Dashboard from "@/components/layouts/Dashboard";
@@ -80,6 +84,18 @@ export default function Index() {
     setSubject(event.target.value);
   };
 
+  const [arg1, setArg1] = useState("");
+  const handleArg1Change = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setArg1(event.target.value);
+  };
+
+  const [arg2, setArg2] = useState("");
+  const handleArg2Change = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setArg2(event.target.value);
+  };
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+
   const { currentUser } = useAuthentication();
   useEffect(() => {
     if (!currentUser?.email) return;
@@ -94,6 +110,10 @@ export default function Index() {
     if (!selectedTemplate?.subject) return;
 
     setSubject(selectedTemplate?.subject);
+  }, [selectedTemplate]);
+
+  const sendMessage = useMemo(() => {
+    return selectedTemplate?.message;
   }, [selectedTemplate]);
 
   const handleSendMailClick = () => {
@@ -165,12 +185,14 @@ export default function Index() {
                 placeholder="Placeholder"
                 sx={{ mr: 2, width: "30%" }}
                 multiline
+                onChange={handleArg1Change}
               />
               <TextField
                 id="outlined-textarea"
                 label="変数2 ($arg2 を置き換える文字列)"
                 sx={{ mr: 2, width: "30%" }}
                 multiline
+                onChange={handleArg2Change}
               />
             </Box>
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -180,6 +202,7 @@ export default function Index() {
                 startIcon={<CheckIcon />}
                 size="small"
                 sx={{ fontWeight: "bold" }}
+                onClick={() => setConfirmDialogOpen(true)}
               >
                 送信内容を確認
               </Button>
@@ -222,6 +245,19 @@ export default function Index() {
             </Box>
           </Paper>
         </Grid>
+        <Dialog
+          open={confirmDialogOpen}
+          onClose={() => setConfirmDialogOpen(false)}
+          fullWidth
+          sx={{ p: 2 }}
+        >
+          <DialogTitle sx={{ fontWeight: "bold" }}>
+            テンプレート編集
+          </DialogTitle>
+          <DialogContent sx={{ minHeight: 540 }}>
+            <DialogContentText sx={{ mb: 2 }}>{sendMessage}</DialogContentText>
+          </DialogContent>
+        </Dialog>
       </Grid>
     </Dashboard>
   );
