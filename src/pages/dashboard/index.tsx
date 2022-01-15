@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, FormEvent } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import {
   Grid,
   Box,
@@ -12,7 +13,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
+  Card,
+  IconButton,
 } from "@mui/material";
+import { GridEvents, GridEventListener } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import Dashboard from "@/components/layouts/Dashboard";
 import Title from "@/components/ui/Title";
@@ -23,6 +27,9 @@ import { useMessageTemplates } from "@/hooks/messageTemplate";
 import { MessageTemplate } from "@/models";
 import CheckIcon from "@mui/icons-material/Check";
 import SendIcon from "@mui/icons-material/Send";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import HelpIcon from "@mui/icons-material/Help";
+import Papa from "papaparse";
 
 // const rows = Array(100)
 //   .fill(null)
@@ -35,23 +42,21 @@ import SendIcon from "@mui/icons-material/Send";
 //   });
 const rows = [
   {
-    id: 1,
     name: "yoshixj4",
     email: "yoshixj4@gmail.com",
   },
   {
-    id: 2,
     name: "yoshiwebxj",
     email: "yoshiwebxj@gmail.com",
   },
   {
-    id: 2,
     name: "y.masubuchi-nicola",
     email: "y.masubuchi@nicola-inc.co.jp",
   },
 ];
 
 const columns = [
+  { field: "id", headerName: "#", width: 100, editable: false },
   { field: "name", headerName: "名前", width: 180, editable: true },
   {
     field: "email",
@@ -71,6 +76,12 @@ const top100Films = [
   { title: "12 Angry Men", year: 1957 },
 ];
 
+interface SenderRow {
+  id?: number;
+  name: string;
+  email: string;
+}
+
 export default function Index() {
   const [senderEmail, setSenderEmail] = useState("");
   const handleSenderEmailChange = (
@@ -80,21 +91,55 @@ export default function Index() {
   };
 
   const [subject, setSubject] = useState("");
-  const handleSubjectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSubject(event.target.value);
-  };
+  const handleSubjectChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSubject(event.target.value);
+    },
+    []
+  );
 
   const [arg1, setArg1] = useState("");
-  const handleArg1Change = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setArg1(event.target.value);
-  };
+  const handleArg1Change = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setArg1(event.target.value);
+    },
+    []
+  );
 
   const [arg2, setArg2] = useState("");
-  const handleArg2Change = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setArg2(event.target.value);
-  };
+  const handleArg2Change = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setArg2(event.target.value);
+    },
+    []
+  );
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [importSenderDialogOpen, setImportSenderDialogOpen] = useState(false);
+
+  const [senderRowsData, setSenderRowsData] = useState<SenderRow[]>([]);
+  const senderRows = useMemo(
+    () => senderRowsData.map((v, i) => ({ ...v, id: i })),
+    [senderRowsData]
+  );
+  const addSenderRows = () => {
+    const newRow: SenderRow = { email: "", name: "" };
+    setSenderRowsData([...senderRowsData, newRow]);
+  };
+  const changeCell = (v: any) => {
+    const rows = [...senderRows];
+    const idx = rows.findIndex(
+      (d) => d.id == v.id
+    ); /* 該当データのindexを取得 */
+
+    // @ts-ignore:next-line
+    rows[idx][v.field] = v.value;
+    setSenderRowsData(rows); /* 編集されたデータを置き換える */
+  };
+  const deleteSenderRow = (id: number) => {
+    const newRows = senderRowsData.filter((row) => !(row.id === id));
+    setSenderRowsData(newRows);
+  };
 
   const { currentUser } = useAuthentication();
   useEffect(() => {
@@ -129,6 +174,20 @@ export default function Index() {
       .then(() => alert("send gmail success"))
       .catch((e) => alert(e));
   };
+
+  const handleCsvFileUpload = useCallback((e: FormEvent<HTMLInputElement>) => {
+    if (!e.target.files) {
+      alert("no file");
+      return;
+    }
+    const file = e.target.files[0];
+    const data = Papa.parse(file, {
+      complete: (results) => {
+        console.log(data);
+        debugger;
+      },
+    });
+  }, []);
 
   return (
     <Dashboard currentUser={currentUser}>
@@ -217,7 +276,18 @@ export default function Index() {
               <Title>送信先</Title>
               <Box>
                 <Button
-                  onClick={handleSendMailClick}
+                  onClick={() => setImportSenderDialogOpen(true)}
+                  color="primary"
+                  size="small"
+                  variant="contained"
+                  disableElevation
+                  startIcon={<AddIcon />}
+                  sx={{ fontWeight: "bold", mr: 1 }}
+                >
+                  送信先をインポート
+                </Button>
+                <Button
+                  onClick={addSenderRows}
                   color="primary"
                   size="small"
                   variant="contained"
@@ -241,7 +311,12 @@ export default function Index() {
               </Box>
             </Box>
             <Box sx={{ height: 420, width: "100%" }}>
-              <DataGrid rows={rows} columns={columns} hideFooter />
+              <DataGrid
+                rows={senderRows}
+                columns={columns}
+                onCellEditCommit={changeCell}
+                hideFooter
+              />
             </Box>
           </Paper>
         </Grid>
@@ -256,6 +331,69 @@ export default function Index() {
           </DialogTitle>
           <DialogContent sx={{ minHeight: 540 }}>
             <DialogContentText sx={{ mb: 2 }}>{sendMessage}</DialogContentText>
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={importSenderDialogOpen}
+          onClose={() => setImportSenderDialogOpen(false)}
+          fullWidth
+          sx={{ p: 2 }}
+        >
+          <DialogTitle sx={{ fontWeight: "bold" }}>
+            インポート
+            <IconButton
+              aria-label="delete"
+              sx={{ position: "relative", top: "-5px", right: "3px" }}
+            >
+              <HelpIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ minHeight: 180, minWidth: 600, px: 0 }}>
+            <Grid container justifyContent="space-around" sx={{ px: 1 }}>
+              <Grid item>
+                <label htmlFor="csvFileUploadInput">
+                  <input
+                    type="file"
+                    name="csvFileUploadInput"
+                    id="csvFileUploadInput"
+                    style={{ display: "none" }}
+                    onInput={handleCsvFileUpload}
+                  />
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      height: 140,
+                      width: 180,
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        cursor: "pointer",
+                      },
+                    }}
+                  >
+                    <Box sx={{ width: "100%", p: 1 }}>
+                      <Box
+                        sx={{
+                          mx: "auto",
+                          textAlign: "center",
+                          height: 70,
+                          mb: 2,
+                        }}
+                      >
+                        <CloudUploadIcon
+                          fontSize="large"
+                          sx={{ width: "3em", height: "3em" }}
+                        />
+                      </Box>
+                      <Typography
+                        sx={{ textAlign: "center", fontWeight: "bold" }}
+                      >
+                        CSVファイルをアップロード
+                      </Typography>
+                    </Box>
+                  </Card>
+                </label>
+              </Grid>
+            </Grid>
           </DialogContent>
         </Dialog>
       </Grid>
