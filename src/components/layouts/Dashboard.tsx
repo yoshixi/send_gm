@@ -83,6 +83,7 @@ const Drawer = styled(MuiDrawer, {
     position: "relative",
     whiteSpace: "nowrap",
     width: drawerWidth,
+    border: "none",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -196,7 +197,7 @@ export default function DashboardContent(props: Props) {
             </Box>
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" open={open}>
+        <Drawer variant="permanent" open={open} sx={{ border: "none" }}>
           <Box height={headerHeight}></Box>
           <List>
             <ListItem
