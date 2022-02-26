@@ -28,7 +28,9 @@ import { MessageTemplate } from "@/models";
 import CheckIcon from "@mui/icons-material/Check";
 import SendIcon from "@mui/icons-material/Send";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DownloadIcon from "@mui/icons-material/Download";
 import HelpIcon from "@mui/icons-material/Help";
+import { indigo } from "@mui/material/colors";
 import Papa from "papaparse";
 
 // const rows = Array(100)
@@ -115,7 +117,14 @@ export default function Index() {
   );
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const handleConfirmDialogOpen = useCallback((value: boolean) => {
+    setConfirmDialogOpen(value);
+  }, []);
+
   const [importSenderDialogOpen, setImportSenderDialogOpen] = useState(false);
+  const handleImportSenderDialogOpen = useCallback((value: boolean) => {
+    setImportSenderDialogOpen(value);
+  }, []);
 
   const [senderRowsData, setSenderRowsData] = useState<SenderRow[]>([]);
   const senderRows = useMemo(
@@ -156,12 +165,11 @@ export default function Index() {
 
     setSubject(selectedTemplate?.subject);
   }, [selectedTemplate]);
-
   const sendMessage = useMemo(() => {
     return selectedTemplate?.message;
   }, [selectedTemplate]);
 
-  const handleSendMailClick = () => {
+  const handleSendMailClick = useCallback(() => {
     const sendGmails = rows.map((row) => {
       return sendGmail({
         to: row.email,
@@ -173,21 +181,31 @@ export default function Index() {
     return Promise.all(sendGmails)
       .then(() => alert("send gmail success"))
       .catch((e) => alert(e));
-  };
+  }, [currentUser?.email, sendGmail]);
 
-  const handleCsvFileUpload = useCallback((e: FormEvent<HTMLInputElement>) => {
-    if (!e.target.files) {
-      alert("no file");
-      return;
-    }
-    const file = e.target.files[0];
-    const data = Papa.parse(file, {
-      complete: (results) => {
-        console.log(data);
-        debugger;
-      },
-    });
-  }, []);
+  const handleCsvFileUpload = useCallback(
+    (e: FormEvent<HTMLInputElement>) => {
+      if (!e.currentTarget.files) {
+        alert("no file");
+        return;
+      }
+      const file = e.currentTarget.files[0];
+      Papa.parse(file, {
+        complete: (result) => {
+          const data = result.data as string[][];
+          const newRows = data.map<SenderRow>((row) => {
+            return {
+              name: row[0],
+              email: row[1],
+            };
+          });
+          setSenderRowsData([...senderRowsData, ...newRows]);
+          setImportSenderDialogOpen(false);
+        },
+      });
+    },
+    [senderRowsData, setSenderRowsData]
+  );
 
   return (
     <Dashboard currentUser={currentUser}>
@@ -261,7 +279,7 @@ export default function Index() {
                 startIcon={<CheckIcon />}
                 size="small"
                 sx={{ fontWeight: "bold" }}
-                onClick={() => setConfirmDialogOpen(true)}
+                onClick={() => handleConfirmDialogOpen(true)}
               >
                 送信内容を確認
               </Button>
@@ -276,7 +294,7 @@ export default function Index() {
               <Title>送信先</Title>
               <Box>
                 <Button
-                  onClick={() => setImportSenderDialogOpen(true)}
+                  onClick={() => handleImportSenderDialogOpen(true)}
                   color="primary"
                   size="small"
                   variant="contained"
@@ -320,9 +338,10 @@ export default function Index() {
             </Box>
           </Paper>
         </Grid>
+
         <Dialog
           open={confirmDialogOpen}
-          onClose={() => setConfirmDialogOpen(false)}
+          onClose={() => handleConfirmDialogOpen(false)}
           fullWidth
           sx={{ p: 2 }}
         >
@@ -335,7 +354,7 @@ export default function Index() {
         </Dialog>
         <Dialog
           open={importSenderDialogOpen}
-          onClose={() => setImportSenderDialogOpen(false)}
+          onClose={() => handleImportSenderDialogOpen(false)}
           fullWidth
           sx={{ p: 2 }}
         >
@@ -349,6 +368,28 @@ export default function Index() {
             </IconButton>
           </DialogTitle>
           <DialogContent sx={{ minHeight: 180, minWidth: 600, px: 0 }}>
+            <Grid sx={{ px: 1, mb: 1 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  minHeight: 50,
+                  bgcolor: indigo[50],
+                  color: "primary.main",
+                  p: 1,
+                }}
+              >
+                <Typography variant="body1" gutterBottom>
+                  以下のようなCSVファイルをアップロードしてください。
+                </Typography>
+                <Button
+                  variant="text"
+                  sx={{ fontWeight: "bold" }}
+                  startIcon={<DownloadIcon />}
+                >
+                  サンプルをダウンロード
+                </Button>
+              </Paper>
+            </Grid>
             <Grid container justifyContent="space-around" sx={{ px: 1 }}>
               <Grid item>
                 <label htmlFor="csvFileUploadInput">
