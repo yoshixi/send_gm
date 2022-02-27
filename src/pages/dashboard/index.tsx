@@ -15,14 +15,15 @@ import {
   DialogContentText,
   Card,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { GridEvents, GridEventListener } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import Dashboard from "@/components/layouts/Dashboard";
 import Title from "@/components/ui/Title";
 import AddIcon from "@mui/icons-material/Add";
 import { useAuthentication } from "@/hooks/authentication";
-import { useGmail } from "@/hooks/gmail";
+import { useGmail, EMAIL_REGEX } from "@/hooks/gmail";
 import { useMessageTemplates } from "@/hooks/messageTemplate";
 import { MessageTemplate } from "@/models";
 import CheckIcon from "@mui/icons-material/Check";
@@ -33,31 +34,7 @@ import HelpIcon from "@mui/icons-material/Help";
 import { indigo } from "@mui/material/colors";
 import Papa from "papaparse";
 
-// const rows = Array(100)
-//   .fill(null)
-//   .map((u, i) => {
-//     return {
-//       id: i,
-//       name: "name",
-//       email: "aaaa@gmail.com",
-//     };
-//   });
-const rows = [
-  {
-    name: "yoshixj4",
-    email: "yoshixj4@gmail.com",
-  },
-  {
-    name: "yoshiwebxj",
-    email: "yoshiwebxj@gmail.com",
-  },
-  {
-    name: "y.masubuchi-nicola",
-    email: "y.masubuchi@nicola-inc.co.jp",
-  },
-];
-
-const columns = [
+const SENDER_TABLE_COLUMNS = [
   { field: "id", headerName: "#", width: 100, editable: false },
   { field: "name", headerName: "名前", width: 180, editable: true },
   {
@@ -67,15 +44,6 @@ const columns = [
     width: 200,
     editable: true,
   },
-];
-
-// wil remove
-const top100Films = [
-  { title: "The Shawshank Redemption", year: 1994 },
-  { title: "The Godfather", year: 1972 },
-  { title: "The Godfather: Part II", year: 1974 },
-  { title: "The Dark Knight", year: 2008 },
-  { title: "12 Angry Men", year: 1957 },
 ];
 
 interface SenderRow {
@@ -126,6 +94,19 @@ export default function Index() {
     setImportSenderDialogOpen(value);
   }, []);
 
+  const [
+    sentEmailSuccessfullySnackbarOpen,
+    setSentEmailSuccessfullySnackBarOpen,
+  ] = useState(false);
+
+  const handleSentEmailSuccessfullySnackbarOpen = useCallback(
+    (value: boolean) => {
+      console.log("aa");
+      setSentEmailSuccessfullySnackBarOpen(value);
+    },
+    []
+  );
+
   const [senderRowsData, setSenderRowsData] = useState<SenderRow[]>([]);
   const senderRows = useMemo(
     () => senderRowsData.map((v, i) => ({ ...v, id: i })),
@@ -158,30 +139,50 @@ export default function Index() {
   }, [currentUser]);
 
   const { sendGmail } = useGmail();
-  const { messageTemplates, selectedTemplate, setSelectedTemplate } =
-    useMessageTemplates();
+  const {
+    messageTemplates,
+    selectedTemplate,
+    setSelectedTemplate,
+    replaceSelectedTemplateMessageTags,
+  } = useMessageTemplates();
   useEffect(() => {
     if (!selectedTemplate?.subject) return;
 
     setSubject(selectedTemplate?.subject);
   }, [selectedTemplate]);
-  const sendMessage = useMemo(() => {
-    return selectedTemplate?.message;
+
+  const message = useMemo<string>(() => {
+    return selectedTemplate?.message || "";
   }, [selectedTemplate]);
 
   const handleSendMailClick = useCallback(() => {
-    const sendGmails = rows.map((row) => {
+    const sendGmails = senderRows.map((row) => {
+      const to = row.email;
       return sendGmail({
-        to: row.email,
+        to,
         from: currentUser?.email || "",
-        subject: "subject",
-        message: `hello ${row.name}`,
+        subject: subject,
+        message: replaceSelectedTemplateMessageTags({
+          to,
+          arg1,
+          arg2,
+          toName: row.name,
+        }),
       });
     });
+
     return Promise.all(sendGmails)
-      .then(() => alert("send gmail success"))
-      .catch((e) => alert(e));
-  }, [currentUser?.email, sendGmail]);
+      .then((res) => setSentEmailSuccessfullySnackBarOpen(true))
+      .catch((e) => alert(`送信に失敗しました ${e}`));
+  }, [
+    currentUser?.email,
+    arg1,
+    arg2,
+    subject,
+    senderRows,
+    sendGmail,
+    replaceSelectedTemplateMessageTags,
+  ]);
 
   const handleCsvFileUpload = useCallback(
     (e: FormEvent<HTMLInputElement>) => {
@@ -193,12 +194,14 @@ export default function Index() {
       Papa.parse(file, {
         complete: (result) => {
           const data = result.data as string[][];
-          const newRows = data.map<SenderRow>((row) => {
-            return {
-              name: row[0],
-              email: row[1],
-            };
-          });
+          const newRows = data
+            .map<SenderRow>((row) => {
+              return {
+                name: row[0],
+                email: row[1],
+              };
+            })
+            .filter((row) => EMAIL_REGEX.test(row.email));
           setSenderRowsData([...senderRowsData, ...newRows]);
           setImportSenderDialogOpen(false);
         },
@@ -258,7 +261,7 @@ export default function Index() {
               </Typography>
               <TextField
                 id="outlined-textarea"
-                label="変数1 ($arg1 を置き換える文字列) "
+                label="*|MERGE1|* を置き換える文字列"
                 placeholder="Placeholder"
                 sx={{ mr: 2, width: "30%" }}
                 multiline
@@ -266,7 +269,7 @@ export default function Index() {
               />
               <TextField
                 id="outlined-textarea"
-                label="変数2 ($arg2 を置き換える文字列)"
+                label="*|MERGE2|* を置き換える文字"
                 sx={{ mr: 2, width: "30%" }}
                 multiline
                 onChange={handleArg2Change}
@@ -331,7 +334,7 @@ export default function Index() {
             <Box sx={{ height: 420, width: "100%" }}>
               <DataGrid
                 rows={senderRows}
-                columns={columns}
+                columns={SENDER_TABLE_COLUMNS}
                 onCellEditCommit={changeCell}
                 hideFooter
               />
@@ -349,7 +352,7 @@ export default function Index() {
             テンプレート編集
           </DialogTitle>
           <DialogContent sx={{ minHeight: 540 }}>
-            <DialogContentText sx={{ mb: 2 }}>{sendMessage}</DialogContentText>
+            <DialogContentText sx={{ mb: 2 }}>{message}</DialogContentText>
           </DialogContent>
         </Dialog>
         <Dialog
@@ -437,6 +440,19 @@ export default function Index() {
             </Grid>
           </DialogContent>
         </Dialog>
+        <Snackbar
+          open={sentEmailSuccessfullySnackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => handleSentEmailSuccessfullySnackbarOpen(false)}
+        >
+          <Alert
+            onClose={() => handleSentEmailSuccessfullySnackbarOpen(false)}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            送信に成功しました
+          </Alert>
+        </Snackbar>
       </Grid>
     </Dashboard>
   );

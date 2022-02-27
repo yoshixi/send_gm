@@ -26,8 +26,9 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { blueGrey, indigo } from "@mui/material/colors";
-import { User, Logout } from "@/hooks/authentication";
+import { blueGrey } from "@mui/material/colors";
+import { Logout } from "@/hooks/authentication";
+import { User } from "@/models/user";
 import { EmailOutlined, Article, History } from "@mui/icons-material";
 
 function Copyright(props: any) {

@@ -1,12 +1,14 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import styles from "../styles/Home.module.css";
 import { useAuthentication, Login, Logout } from "@/hooks/authentication";
 import { Button } from "@mui/material";
 
 const Home: NextPage = () => {
   const { currentUser } = useAuthentication();
+  const router = useRouter();
   return (
     <div className={styles.container}>
       <Head>
@@ -44,6 +46,13 @@ const Home: NextPage = () => {
           }}
         >
           Logout
+        </Button>
+        <Button
+          onClick={() => {
+            router.push("/dashboard");
+          }}
+        >
+          Dashboard
         </Button>
       </main>
 

@@ -2,9 +2,13 @@ import { useEffect, useState, Dispatch } from "react";
 import { getAuth, GoogleAuthProvider, User } from "firebase/auth";
 import { OAUTH_CONFIG, Login } from "./authentication";
 
-type SendMailParams = {
+export const EMAIL_REGEX =
+  /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/;
+
+export type SendMailParams = {
   to: string;
   from: string;
+  toName?: string;
   bcc?: string;
   subject: string;
   message: string;
@@ -100,15 +104,15 @@ export const sendGmail = (params: SendMailParams) => {
     to: params.to,
     from: params.from,
     subject: params.subject,
-    message: messageBody,
+    message: params.message,
   });
 
   return gapi.client.gmail.users.messages
     .send({ resource: { raw }, userId: "me" })
-    .then(() => {
-      alert("email sent success");
+    .then((res) => {
+      return res;
     })
-    .catch(() => {
-      alert("error");
+    .catch((e) => {
+      console.log(e);
     });
 };
