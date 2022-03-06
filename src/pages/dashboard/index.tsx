@@ -256,7 +256,6 @@ export default function Index() {
               <TextField
                 label="差出人メールアドレス"
                 id="outlined-size-small"
-                defaultValue="sender@gmail.com"
                 size="medium"
                 sx={{ mr: 1, width: "30%" }}
                 value={senderEmail}
@@ -265,7 +264,6 @@ export default function Index() {
               <TextField
                 label="件名"
                 id="outlined-size-small"
-                defaultValue="sender@gmail.com"
                 value={subject}
                 size="medium"
                 sx={{ mr: 1, width: "30%" }}

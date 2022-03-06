@@ -72,7 +72,7 @@ export const Login = () => {
   OAUTH_CONFIG.scopes.forEach((scope) => {
     provider.addScope(scope);
   });
-  signInWithRedirect(auth, provider)
+  return signInWithRedirect(auth, provider)
     .then(function (result: any) {
       console.log("Logged in successfully");
       console.log("result: ", result);
