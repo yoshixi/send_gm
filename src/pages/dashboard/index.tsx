@@ -17,6 +17,7 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  AlertTitle,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Dashboard from "@/components/layouts/Dashboard";
@@ -98,7 +99,6 @@ export default function Index() {
     sentEmailSuccessfullySnackbarOpen,
     setSentEmailSuccessfullySnackBarOpen,
   ] = useState(false);
-
   const handleSentEmailSuccessfullySnackbarOpen = useCallback(
     (value: boolean) => {
       console.log("aa");
@@ -109,11 +109,12 @@ export default function Index() {
 
   const [senderRowsData, setSenderRowsData] = useState<SenderRow[]>([]);
   const senderRows = useMemo(
-    () => senderRowsData.map((v, i) => ({ ...v, id: i })),
+    () => senderRowsData.map((v, i) => ({ ...v })),
     [senderRowsData]
   );
   const addSenderRows = () => {
-    const newRow: SenderRow = { email: "", name: "" };
+    const ids: number[] = senderRowsData.map((v) => v.id).filter<number>((v): v is number => typeof v === 'number');
+    const newRow: SenderRow = { email: "", name: "", id: Math.max(...ids) + 1 };
     setSenderRowsData([...senderRowsData, newRow]);
   };
   const changeCell = (v: any) => {
@@ -194,9 +195,12 @@ export default function Index() {
       Papa.parse(file, {
         complete: (result) => {
           const data = result.data as string[][];
+          const rowsIds: number[] = senderRowsData.map((v) => v.id).filter<number>((v): v is number => typeof v === 'number');
+          const  max = rowsIds.length === 0 ? 0 : Math.max(...rowsIds);
           const newRows = data
-            .map<SenderRow>((row) => {
+            .map<SenderRow>((row, index) => {
               return {
+                id: index + max + 1,
                 name: row[0],
                 email: row[1],
               };
@@ -337,7 +341,6 @@ export default function Index() {
                 columns={SENDER_TABLE_COLUMNS}
                 onCellEditCommit={changeCell}
                 hideFooter
-                checkboxSelection
               />
             </Box>
           </Paper>
@@ -444,6 +447,7 @@ export default function Index() {
         <Snackbar
           open={sentEmailSuccessfullySnackbarOpen}
           autoHideDuration={6000}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           onClose={() => handleSentEmailSuccessfullySnackbarOpen(false)}
         >
           <Alert
@@ -451,7 +455,10 @@ export default function Index() {
             severity="success"
             sx={{ width: "100%" }}
           >
-            送信に成功しました
+            <AlertTitle sx={{ fontWeight: 'bold' }}>
+              送信に成功しました
+            </AlertTitle>
+
           </Alert>
         </Snackbar>
       </Grid>
