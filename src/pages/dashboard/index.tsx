@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   DialogContentText,
   Card,
   IconButton,
@@ -114,7 +115,8 @@ export default function Index() {
   );
   const addSenderRows = () => {
     const ids: number[] = senderRowsData.map((v) => v.id).filter<number>((v): v is number => typeof v === 'number');
-    const newRow: SenderRow = { email: "", name: "", id: Math.max(...ids) + 1 };
+    const  max = ids.length === 0 ? 0 : Math.max(...ids);
+    const newRow: SenderRow = { email: "", name: "", id: max + 1 };
     setSenderRowsData([...senderRowsData, newRow]);
   };
   const changeCell = (v: any) => {
@@ -152,9 +154,20 @@ export default function Index() {
     setSubject(selectedTemplate?.subject);
   }, [selectedTemplate]);
 
-  const message = useMemo<string>(() => {
-    return selectedTemplate?.message || "";
-  }, [selectedTemplate]);
+  const firstSendMessage = useMemo(
+    () => {
+      const firstRow = senderRowsData[0]
+      if (senderRowsData.length === 0) return '';
+
+      return replaceSelectedTemplateMessageTags({
+        to: firstRow.email,
+        arg1,
+        arg2,
+        toName: firstRow.name,
+      })
+    },
+    [senderRowsData, arg1, arg2, replaceSelectedTemplateMessageTags]
+  );
 
   const handleSendMailClick = useCallback(() => {
     const sendGmails = senderRows.map((row) => {
@@ -323,7 +336,7 @@ export default function Index() {
                   送信先を追加
                 </Button>
                 <Button
-                  onClick={handleSendMailClick}
+                  onClick={() => handleConfirmDialogOpen(true)}
                   color="primary"
                   size="small"
                   variant="contained"
@@ -346,6 +359,7 @@ export default function Index() {
           </Paper>
         </Grid>
 
+        {/* // Confirm Dialog */}
         <Dialog
           open={confirmDialogOpen}
           onClose={() => handleConfirmDialogOpen(false)}
@@ -356,9 +370,19 @@ export default function Index() {
             テンプレート編集
           </DialogTitle>
           <DialogContent sx={{ minHeight: 540 }}>
-            <DialogContentText sx={{ mb: 2 }}>{message}</DialogContentText>
+            <DialogContentText sx={{ pt: 2, fontWeight: 'bold' }}>以下の内容で送信します。</DialogContentText>
+            <DialogContentText sx={{ pt: 1, mb: 2, fontWeight: 'bold' }}>* タグの箇所は最初の送信先に置換えて表示されています。</DialogContentText>
+            <DialogContentText sx={{ pt: 2, mb: 2, color: 'black', fontSize: '1.3rem' }}>{firstSendMessage}</DialogContentText>
           </DialogContent>
+          <DialogActions>
+            <Button variant="text" sx={{ color: 'gray' }} onClick={() => handleConfirmDialogOpen(false)}>キャンセル</Button>
+            <Button variant="contained" onClick={handleSendMailClick} autoFocus>
+              送信
+            </Button>
+        </DialogActions>
         </Dialog>
+
+        {/* Import Data Dialog */}
         <Dialog
           open={importSenderDialogOpen}
           onClose={() => handleImportSenderDialogOpen(false)}

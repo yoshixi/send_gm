@@ -28,11 +28,6 @@ const Home: NextPage = () => {
         </p>
         <p>current user{currentUser?.displayName}</p>
 
-        <img
-          src={currentUser?.photoURL || "/blank-profile-picture.png"}
-          alt=""
-        />
-
         <Button
           onClick={() => {
             Login();
