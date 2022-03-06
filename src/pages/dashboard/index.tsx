@@ -337,6 +337,7 @@ export default function Index() {
                 columns={SENDER_TABLE_COLUMNS}
                 onCellEditCommit={changeCell}
                 hideFooter
+                checkboxSelection
               />
             </Box>
           </Paper>

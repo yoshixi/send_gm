@@ -163,11 +163,11 @@ export default function DashboardContent(props: Props) {
             >
               SendGM
             </Typography>
-            <IconButton color="inherit">
+            {/* <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
-            </IconButton>
+            </IconButton> */}
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
