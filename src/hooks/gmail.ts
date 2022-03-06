@@ -88,18 +88,6 @@ export const sendGmail = (params: SendMailParams) => {
     return;
   }
 
-  const messageBody = `
-        XXXX 様
-
-        商品のご購入、誠にありがとうございます。
-        ・Nefry BT x 1
-        の商品を本日発送しましたのでご連絡差し上げます。
-
-        こちらから配送状況をご確認頂けます。
-        (このメール送信の時点では反映されていない可能性もあります)
-
-        https://trackings.post.japanpost.jp/xxxxxxxxxx`;
-
   const raw = makeBody({
     to: params.to,
     from: params.from,
