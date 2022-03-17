@@ -1,5 +1,4 @@
-import { useEffect, useState, Dispatch } from "react";
-import { getAuth, GoogleAuthProvider, User } from "firebase/auth";
+import { useEffect } from "react";
 import { OAUTH_CONFIG, Login } from "./authentication";
 
 export const EMAIL_REGEX =

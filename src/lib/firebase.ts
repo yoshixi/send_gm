@@ -10,8 +10,8 @@ import {
   initializeAuth,
   browserLocalPersistence,
   browserPopupRedirectResolver,
-  browserSessionPersistence,
   indexedDBLocalPersistence,
+  inMemoryPersistence,
 } from "firebase/auth";
 
 const firebaseConfig: FirebaseOptions = {
@@ -22,16 +22,21 @@ const firebaseConfig: FirebaseOptions = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-const firebaseApp: FirebaseApp = !getApps().length
-  ? initializeApp(firebaseConfig)
-  : getApp();
+
+const getFirebaseApp = (): FirebaseApp => {
+  if (typeof window !== "undefined") return initializeApp(firebaseConfig);
+  if (!getApps().length) return initializeApp(firebaseConfig);
+
+  return getApp();
+}
+
+const firebaseApp: FirebaseApp = getFirebaseApp()
 
 export const auth = initializeAuth(firebaseApp, {
-  persistence: [
+  persistence: typeof window === 'undefined' ? inMemoryPersistence : [
     indexedDBLocalPersistence,
     browserLocalPersistence,
-    browserSessionPersistence,
-  ],
+  ], // ref: https://github.com/firebase/firebase-js-sdk/issues/5475#issuecomment-917616374
   popupRedirectResolver: browserPopupRedirectResolver,
 });
 export default firebaseApp;
